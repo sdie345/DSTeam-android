@@ -2,6 +2,7 @@ package saintdev.kr.dsteamproject.views.activitys
 
 import android.app.ProgressDialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -46,6 +47,8 @@ class LoginActivity : AppCompatActivity() {
                 val dialog = CommonDialog.openProgress("로그인 중 입니다..", this)
                 HttpManager.httpRequest(HttpURLs.AUTH_LOGIN_AUTO, OnAutoLoginCallback(dialog),
                         HttpRequestMap("session", sessionKey))
+
+                return
             }
         }
 
@@ -66,10 +69,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
     /**
      * Auto Login callback.
      * 닫고싶은 프로그레스 다이얼로그를 인자로 전송함.
@@ -78,13 +77,19 @@ class LoginActivity : AppCompatActivity() {
         override fun onRequested(obj: JSONObject) {
             dialog?.dismiss()
 
-            Log.d("DSMAD", "자동 로그인 완료.")
+            if(obj.getBoolean("success")) {
+                // 새로운 세션 값이 있다면 여기서 등록하십시오.
+                openMainActivity()
+            } else {
+                // 잘못된 세션 값 입니다.
+                "자동 로그인에 실패했습니다.\n다시 로그인 해 주세요.".openMessage("오류", this@LoginActivity)
+            }
         }
 
         override fun onFailed() {
             dialog?.dismiss()
-
-            Log.d("DSMAD", "자동 로그인 실패.")
+            // 서버 오류
+            "서버 오류가 발생했습니다.".openMessage("서버 오류", this@LoginActivity)
         }
     }
 
@@ -99,7 +104,8 @@ class LoginActivity : AppCompatActivity() {
             if(obj.getBoolean("success")) {
                 // 로그인 성공 여부를 확인
                 val session = obj.getString("session")
-
+                SharedPref.writeLoginSession(session)       // Write session.
+                openMainActivity()
             } else {
                 val errorMsg = obj.getString("message")
                 "로그인에 실패했습니다\n$errorMsg".openMessage("오류", this@LoginActivity)
@@ -112,4 +118,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    fun openMainActivity() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
 }
