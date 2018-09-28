@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">DSTeamProject</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="login_message">따르미스트 앱에 로그인하여\n따릉이의 모든 기능을 사용하세요.</string>
+    <string name="cross_sign">→</string>
+</resources>

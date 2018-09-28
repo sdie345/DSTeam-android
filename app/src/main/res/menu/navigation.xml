@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_search"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="주변 탐색" />
+
+    <item
+        android:id="@+id/nav_buy_ticket"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="이용권 구매" />
+
+    <item
+        android:id="@+id/nav_usage_log"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="이용 기록" />
+
+    <item
+        android:id="@+id/nav_account"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="내 정보" />
+
+</menu>
