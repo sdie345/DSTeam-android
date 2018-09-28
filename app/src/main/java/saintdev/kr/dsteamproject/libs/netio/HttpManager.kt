@@ -6,9 +6,10 @@ import org.json.JSONException
 import org.json.JSONObject
 import saintdev.kr.dsteamproject.libs.netio.libs.HttpRequestMap
 import saintdev.kr.dsteamproject.libs.netio.libs.OnHttpListener
+import java.lang.Exception
 
 object HttpManager {
-    private val MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8")
+    private val MEDIA_TYPE = MediaType.parse("application/json")
 
     /**
      * Http Listen
@@ -26,7 +27,7 @@ object HttpManager {
     /**
      * Create json string from HttpRequestMap
      */
-    fun makeJSONString(args: Array<out HttpRequestMap>) : String {
+    private fun makeJSONString(args: Array<out HttpRequestMap>) : String {
         val stringBuf = StringBuffer()
 
         args.forEach {
@@ -37,28 +38,31 @@ object HttpManager {
         return stringBuf.toString()
     }
 
-    private class BackgroundTask(val request: Request, val listener: OnHttpListener) : AsyncTask<Void, Void, Response>() {
+    private class BackgroundTask(val request: Request, val listener: OnHttpListener) : AsyncTask<Void, Void, String?>() {
         private val client = OkHttpClient()
 
-        override fun doInBackground(vararg p0: Void?): Response =
-                client.newCall(request).execute()
+        override fun doInBackground(vararg p0: Void?): String? {
+            try {
+                val result = client.newCall(request).execute()
+                if (result.code() != 200) return null
+                return result?.body()?.string()
+            } catch(ex: Exception) {
+                ex.printStackTrace()
+                return null
+            }
+        }
 
-        override fun onPostExecute(result: Response?) {
-            val data = result?.body()?.string()
 
+        override fun onPostExecute(data: String?) {
             if(data == null) {
                 listener.onFailed()
             } else {
                 // data == JSONObject
-                if(result.code() != 200) {
+                try {
+                    listener.onRequested(JSONObject(data))
+                } catch (ex: JSONException) {
+                    // JSON 데이터가 아님.
                     listener.onFailed()
-                } else {
-                    try {
-                        listener.onRequested(JSONObject(data))
-                    } catch (ex: JSONException) {
-                        // JSON 데이터가 아님.
-                        listener.onFailed()
-                    }
                 }
             }
         }
